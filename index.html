@@ -273,7 +273,7 @@
             font-weight: 800;
             color: #059669;
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0 20px 0;
         }
         .detail-row {
             display: flex;
@@ -348,7 +348,7 @@
             font-size: 13px;
         }
         .admin-table input {
-            width: 90px;
+            width: 110px;
             padding: 6px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
@@ -425,9 +425,9 @@
                     </div>
                 </div>
 
-                <!-- SELEÇÃO DE LENTES E TRATAMENTOS -->
+                <!-- SELEÇÃO DE LENTES, TRATAMENTOS E PROMOÇÃO -->
                 <div class="card">
-                    <div class="card-header"><span><i class="fa-solid fa-tag"></i> SELEÇÃO DE LENTE E TRATAMENTOS</span></div>
+                    <div class="card-header"><span><i class="fa-solid fa-tag"></i> SELEÇÃO DE LENTE E PROMOÇÃO</span></div>
                     
                     <div class="form-group">
                         <label>Tipo de Lente</label>
@@ -443,9 +443,15 @@
                         </select>
                     </div>
 
+                    <!-- ABA DE PROMOÇÕES / DESCONTOS -->
                     <div class="form-group" style="margin-bottom:0;">
-                        <label>Valor da Armação (R$)</label>
-                        <input type="number" id="valor_armacao" class="form-control" value="150.00">
+                        <label><i class="fa-solid fa-percent" style="color: #d97706;"></i> Promoção / Desconto Especial</label>
+                        <select id="desconto_promocao" class="form-control" style="font-weight: 600; color: #d97706;">
+                            <option value="0">Sem Desconto (Preço Normal)</option>
+                            <option value="10">Promoção 10% OFF</option>
+                            <option value="20">Promoção 20% OFF</option>
+                            <option value="30">Promoção 30% OFF</option>
+                        </select>
                     </div>
                 </div>
 
@@ -497,8 +503,16 @@
                         <span><i class="fa-solid fa-pen-to-square"></i> EDITAR TABELA DE PREÇOS FIXOS</span>
                         <button onclick="sairGerencia()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 600;">Sair</button>
                     </div>
-                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Altere os preços das lentes e tratamentos abaixo. Os vendedores não verão os valores no menu.</p>
                     
+                    <!-- CONFIGURAÇÃO DO PREÇO DA ARMAÇÃO -->
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="color: #0f172a; font-weight: 700;">Preço Padrão da Armação (R$)</label>
+                            <input type="number" step="0.01" id="adm_preco_armacao" class="form-control" value="150.00" style="margin-top: 6px;">
+                            <small style="color: #64748b; font-size: 11px;">Este valor será somado automaticamente aos orçamentos sem aparecer na tela do vendedor.</small>
+                        </div>
+                    </div>
+
                     <h4 style="font-size: 14px; margin-top: 10px; color: #0f172a;">Lentes Base:</h4>
                     <table class="admin-table">
                         <thead>
@@ -543,6 +557,9 @@
             <div class="detail-row"><span>Adição:</span><span id="res_adicao" style="font-weight: 600;">-</span></div>
             <div class="detail-row"><span>Medidas OD (DP/CO):</span><span id="res_medidas_od" style="font-weight: 600;">-</span></div>
             <div class="detail-row"><span>Medidas OE (DP/CO):</span><span id="res_medidas_oe" style="font-weight: 600;">-</span></div>
+            <div class="detail-row" id="row_desconto_aplicado" style="display: none; color: #d97706; font-weight: 600;">
+                <span>Desconto Aplicado:</span><span id="res_desconto">-</span>
+            </div>
             
             <div style="font-size: 11px; text-transform: uppercase; color: #64748b; text-align: center; margin-top: 20px;">Valor Total dos Óculos</div>
             <div class="price-tag" id="res_total">R$ 0,00</div>
@@ -581,6 +598,7 @@
         { id: "trat_4", nome: "Fotossensível + Anti-Reflexo", preco: 200.00 }
     ];
 
+    let valorArmacaoPadrao = 150.00;
     let clientesLista = [];
     let historicoLista = [];
     let tabelaPrecos = [];
@@ -602,6 +620,12 @@
             tabelaTratamentos = JSON.parse(JSON.stringify(tratamentosPadrao));
         }
 
+        let salvoArmacao = localStorage.getItem('mg_preco_armacao');
+        if (salvoArmacao) {
+            valorArmacaoPadrao = parseFloat(salvoArmacao);
+        }
+
+        document.getElementById('adm_preco_armacao').value = valorArmacaoPadrao.toFixed(2);
         renderizarSelects();
     }
 
@@ -651,6 +675,8 @@
         const idTratamento = document.getElementById('tipo_tratamento').value;
         const tratamentoObj = tabelaTratamentos.find(t => t.id === idTratamento);
         
+        const porcentagemDesconto = parseFloat(document.getElementById('desconto_promocao').value) || 0;
+
         const nome = document.getElementById('cliente_nome').value || "Cliente Balcão";
         const tel = document.getElementById('cliente_tel').value || "";
         const adicao = document.getElementById('adicao').value || "Não aplicável";
@@ -662,9 +688,11 @@
 
         const valorLente = lenteObj ? parseFloat(lenteObj.preco) : 0;
         const valorTratamento = tratamentoObj ? parseFloat(tratamentoObj.preco) : 0;
-        const valorArmacao = parseFloat(document.getElementById('valor_armacao').value) || 0;
+        const valorArmacao = valorArmacaoPadrao;
 
-        const totalGeral = valorLente + valorTratamento + valorArmacao;
+        const subtotal = valorLente + valorTratamento + valorArmacao;
+        const valorDesconto = (subtotal * porcentagemDesconto) / 100;
+        const totalGeral = subtotal - valorDesconto;
 
         if(nome && !clientesLista.includes(nome)) {
             clientesLista.push(nome);
@@ -679,9 +707,21 @@
         document.getElementById('res_adicao').innerText = adicao;
         document.getElementById('res_medidas_od').innerText = `DP: ${odDp} | CO: ${odCo}`;
         document.getElementById('res_medidas_oe').innerText = `DP: ${oeDp} | CO: ${oeCo}`;
+
+        const rowDesconto = document.getElementById('row_desconto_aplicado');
+        if(porcentagemDesconto > 0) {
+            rowDesconto.style.display = 'flex';
+            document.getElementById('res_desconto').innerText = `${porcentagemDesconto}% OFF (- R$ ${valorDesconto.toFixed(2).replace('.', ',')})`;
+        } else {
+            rowDesconto.style.display = 'none';
+        }
+
         document.getElementById('res_total').innerText = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
 
-        window.orcamentoAtual = { nome, totalGeral, modeloLente: lenteObj.nome, tratamento: tratamentoObj.nome, tel, adicao, odDp, odCo, oeDp, oeCo };
+        window.orcamentoAtual = { 
+            nome, totalGeral, modeloLente: lenteObj.nome, tratamento: tratamentoObj.nome, 
+            tel, adicao, odDp, odCo, oeDp, oeCo, porcentagemDesconto, valorDesconto 
+        };
         document.getElementById('result-screen').style.display = 'block';
     }
 
@@ -707,7 +747,9 @@
 
     function enviarWhatsApp() {
         const o = window.orcamentoAtual;
-        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n✨ *Tratamento:* ${o.tratamento}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2)}*\n\nAgradecemos a preferência!`;
+        let txtDesconto = o.porcentagemDesconto > 0 ? `\n🏷️ *Desconto Promocional:* ${o.porcentagemDesconto}% OFF` : "";
+        
+        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n✨ *Tratamento:* ${o.tratamento}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})${txtDesconto}\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2)}*\n\nAgradecemos a preferência!`;
         const url = `https://api.whatsapp.com/send?phone=${o.tel}&text=` + encodeURIComponent(texto);
         window.open(url, '_blank');
     }
@@ -755,6 +797,14 @@
     }
 
     function salvarTabelaPrecos() {
+        // Salvar Preço da Armação
+        const novaArmacao = parseFloat(document.getElementById('adm_preco_armacao').value);
+        if(!isNaN(novaArmacao)) {
+            valorArmacaoPadrao = novaArmacao;
+            localStorage.setItem('mg_preco_armacao', novaArmacao);
+        }
+
+        // Salvar Preço das Lentes
         tabelaPrecos.forEach((item, index) => {
             const valInput = parseFloat(document.getElementById(`preco_lente_adm_${index}`).value);
             if (!isNaN(valInput)) {
@@ -762,6 +812,7 @@
             }
         });
 
+        // Salvar Preço dos Tratamentos
         tabelaTratamentos.forEach((item, index) => {
             const valInput = parseFloat(document.getElementById(`preco_trat_adm_${index}`).value);
             if (!isNaN(valInput)) {
@@ -772,7 +823,7 @@
         localStorage.setItem('mg_tabela_precos', JSON.stringify(tabelaPrecos));
         localStorage.setItem('mg_tabela_tratamentos', JSON.stringify(tabelaTratamentos));
         renderizarSelects();
-        alert("Tabela de preços e tratamentos atualizada com sucesso!");
+        alert("Configurações, preços e armação salvos com sucesso!");
     }
 
     // Inicialização ao carregar a página
