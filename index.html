@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Óticas M&G - Sistema de Orçamento</title>
+    
+    <!-- Configurações para abrir como Web App de verdade -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Óticas M&G">
+    <meta name="theme-color" content="#0f172a">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -431,19 +438,14 @@
                     
                     <div class="form-group">
                         <label>Tipo de Lente</label>
-                        <select id="tipo_lente" class="form-control">
-                            <!-- Opções carregadas dinamicamente via JS -->
-                        </select>
+                        <select id="tipo_lente" class="form-control"></select>
                     </div>
 
                     <div class="form-group">
                         <label>Tratamento Adicional</label>
-                        <select id="tipo_tratamento" class="form-control">
-                            <!-- Opções carregadas dinamicamente via JS -->
-                        </select>
+                        <select id="tipo_tratamento" class="form-control"></select>
                     </div>
 
-                    <!-- ABA DE PROMOÇÕES / DESCONTOS -->
                     <div class="form-group" style="margin-bottom:0;">
                         <label><i class="fa-solid fa-percent" style="color: #d97706;"></i> Promoção / Desconto Especial</label>
                         <select id="desconto_promocao" class="form-control" style="font-weight: 600; color: #d97706;">
@@ -460,18 +462,20 @@
 
             <!-- 2. ABA CLIENTES -->
             <div id="view-clientes" class="view-content">
-                <h2 class="section-title">Clientes Atendidos</h2>
-                <div id="lista-clientes">
-                    <div class="list-item"><span>Nenhum cliente cadastrado ainda nesta sessão.</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">Clientes Atendidos</h2>
+                    <button onclick="limparClientes()" style="background: none; border: none; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-trash"></i> Limpar Lista</button>
                 </div>
+                <div id="lista-clientes"></div>
             </div>
 
             <!-- 3. ABA HISTÓRICO -->
             <div id="view-historico" class="view-content">
-                <h2 class="section-title">Histórico de Orçamentos</h2>
-                <div id="lista-historico">
-                    <div class="list-item"><span>Nenhum orçamento gerado ainda.</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">Histórico de Orçamentos</h2>
+                    <button onclick="limparHistorico()" style="background: none; border: none; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-trash"></i> Limpar Histórico</button>
                 </div>
+                <div id="lista-historico"></div>
             </div>
 
             <!-- 4. ABA PRODUTOS -->
@@ -483,11 +487,10 @@
                 <div class="card"><div class="card-header"><span>Alto Índice (1.67 / 1.74)</span></div><p style="font-size: 13px; color: #64748b;">Lentes ultrafinas recomendadas para graus elevados.</p></div>
             </div>
 
-            <!-- 5. ABA GERÊNCIA (SÓ O GERENTE/ADM TEM ACESSO) -->
+            <!-- 5. ABA GERÊNCIA (ADM) -->
             <div id="view-gerencia" class="view-content">
                 <h2 class="section-title">Painel de Gerência (ADM)</h2>
                 
-                <!-- TELA DE LOGIN ADM -->
                 <div id="login-adm" class="card">
                     <div class="card-header"><span><i class="fa-solid fa-lock"></i> ÁREA RESTRITA</span></div>
                     <div class="form-group">
@@ -497,19 +500,17 @@
                     <button class="btn-primary" onclick="autenticarGerente()">ACESSAR PAINEL</button>
                 </div>
 
-                <!-- PAINEL RESTRITO DE PREÇOS -->
                 <div id="painel-precos-adm" class="card" style="display: none;">
                     <div class="card-header">
                         <span><i class="fa-solid fa-pen-to-square"></i> EDITAR TABELA DE PREÇOS FIXOS</span>
                         <button onclick="sairGerencia()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 600;">Sair</button>
                     </div>
                     
-                    <!-- CONFIGURAÇÃO DO PREÇO DA ARMAÇÃO -->
                     <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
                         <div class="form-group" style="margin-bottom:0;">
                             <label style="color: #0f172a; font-weight: 700;">Preço Padrão da Armação (R$)</label>
                             <input type="number" step="0.01" id="adm_preco_armacao" class="form-control" value="150.00" style="margin-top: 6px;">
-                            <small style="color: #64748b; font-size: 11px;">Este valor será somado automaticamente aos orçamentos sem aparecer na tela do vendedor.</small>
+                            <small style="color: #64748b; font-size: 11px;">Este valor é somado automaticamente sem aparecer na tela do vendedor.</small>
                         </div>
                     </div>
 
@@ -521,9 +522,7 @@
                                 <th>Preço Base (R$)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-precos-body">
-                            <!-- Gerado via JavaScript -->
-                        </tbody>
+                        <tbody id="tabela-precos-body"></tbody>
                     </table>
 
                     <h4 style="font-size: 14px; margin-top: 25px; color: #0f172a;">Adicionais de Tratamentos:</h4>
@@ -534,9 +533,7 @@
                                 <th>Valor Adicional (R$)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-tratamentos-body">
-                            <!-- Gerado via JavaScript -->
-                        </tbody>
+                        <tbody id="tabela-tratamentos-body"></tbody>
                     </table>
 
                     <button class="btn-primary" onclick="salvarTabelaPrecos()" style="margin-top: 20px;">SALVAR ALTERAÇÕES DE PREÇO</button>
@@ -577,7 +574,6 @@
 </div>
 
 <script>
-    // Tabela padrão de preços das lentes
     let tabelaPrecosPadrao = [
         { id: "vs_1", categoria: "Visão Simples", nome: "Visão Simples CR-39 / Incolor 1.49", preco: 120.00 },
         { id: "vs_2", categoria: "Visão Simples", nome: "Visão Simples Policarbonato 1.59", preco: 220.00 },
@@ -589,7 +585,6 @@
         { id: "ai_2", categoria: "Alto Índice (Ultrafinas)", nome: "Alto Índice 1.74", preco: 980.00 }
     ];
 
-    // Tabela padrão de tratamentos adicionais
     let tratamentosPadrao = [
         { id: "trat_0", nome: "Incolor / Sem Tratamento Adicional", preco: 0.00 },
         { id: "trat_1", nome: "AR (Anti-Reflexo)", preco: 80.00 },
@@ -604,38 +599,35 @@
     let tabelaPrecos = [];
     let tabelaTratamentos = [];
 
-    // Carregar Preços Fixos Salvos (ou padrão)
-    function carregarPrecos() {
+    function carregarDadosSalvos() {
+        // Carregar Preços
         let salvosLentes = localStorage.getItem('mg_tabela_precos');
-        if (salvosLentes) {
-            tabelaPrecos = JSON.parse(salvosLentes);
-        } else {
-            tabelaPrecos = JSON.parse(JSON.stringify(tabelaPrecosPadrao));
-        }
+        tabelaPrecos = salvosLentes ? JSON.parse(salvosLentes) : JSON.parse(JSON.stringify(tabelaPrecosPadrao));
 
         let salvosTrat = localStorage.getItem('mg_tabela_tratamentos');
-        if (salvosTrat) {
-            tabelaTratamentos = JSON.parse(salvosTrat);
-        } else {
-            tabelaTratamentos = JSON.parse(JSON.stringify(tratamentosPadrao));
-        }
+        tabelaTratamentos = salvosTrat ? JSON.parse(salvosTrat) : JSON.parse(JSON.stringify(tratamentosPadrao));
 
         let salvoArmacao = localStorage.getItem('mg_preco_armacao');
-        if (salvoArmacao) {
-            valorArmacaoPadrao = parseFloat(salvoArmacao);
-        }
-
+        if (salvoArmacao) valorArmacaoPadrao = parseFloat(salvoArmacao);
         document.getElementById('adm_preco_armacao').value = valorArmacaoPadrao.toFixed(2);
+
+        // Carregar Clientes e Histórico do LocalStorage
+        let clientesSalvos = localStorage.getItem('mg_clientes');
+        if(clientesSalvos) clientesLista = JSON.parse(clientesSalvos);
+
+        let historicoSalvo = localStorage.getItem('mg_historico');
+        if(historicoSalvo) historicoLista = JSON.parse(historicoSalvo);
+
         renderizarSelects();
+        atualizarListaClientes();
+        atualizarListaHistorico();
     }
 
-    // Renderizar selects sem exibir os valores para os vendedores
     function renderizarSelects() {
         const selectLente = document.getElementById('tipo_lente');
         selectLente.innerHTML = "";
 
         let categorias = [...new Set(tabelaPrecos.map(item => item.categoria))];
-
         categorias.forEach(cat => {
             let optgroup = document.createElement('optgroup');
             optgroup.label = cat;
@@ -677,7 +669,9 @@
         
         const porcentagemDesconto = parseFloat(document.getElementById('desconto_promocao').value) || 0;
 
-        const nome = document.getElementById('cliente_nome').value || "Cliente Balcão";
+        let nome = document.getElementById('cliente_nome').value.trim();
+        if(!nome) nome = "Cliente Balcão";
+
         const tel = document.getElementById('cliente_tel').value || "";
         const adicao = document.getElementById('adicao').value || "Não aplicável";
 
@@ -694,13 +688,26 @@
         const valorDesconto = (subtotal * porcentagemDesconto) / 100;
         const totalGeral = subtotal - valorDesconto;
 
-        if(nome && !clientesLista.includes(nome)) {
+        // Adiciona cliente se não existir
+        if (!clientesLista.includes(nome)) {
             clientesLista.push(nome);
+            localStorage.setItem('mg_clientes', JSON.stringify(clientesLista));
             atualizarListaClientes();
         }
-        historicoLista.unshift({nome, totalGeral, modeloLente: lenteObj.nome, tratamento: tratamentoObj.nome});
+
+        // Registra histórico com data/hora
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        historicoLista.unshift({
+            nome, 
+            totalGeral, 
+            modeloLente: lenteObj.nome, 
+            tratamento: tratamentoObj.nome,
+            data: dataHoje
+        });
+        localStorage.setItem('mg_historico', JSON.stringify(historicoLista));
         atualizarListaHistorico();
 
+        // Preenche dados da tela de resultado
         document.getElementById('res_cliente').innerText = "Cliente: " + nome;
         document.getElementById('res_modelo').innerText = lenteObj.nome;
         document.getElementById('res_tratamento').innerText = tratamentoObj.nome;
@@ -732,6 +739,10 @@
     function atualizarListaClientes() {
         const container = document.getElementById('lista-clientes');
         container.innerHTML = "";
+        if (clientesLista.length === 0) {
+            container.innerHTML = `<div class="list-item"><span style="color: #64748b;">Nenhum cliente registrado ainda.</span></div>`;
+            return;
+        }
         clientesLista.forEach(c => {
             container.innerHTML += `<div class="list-item"><span><i class="fa-solid fa-user" style="margin-right:8px; color:#d97706;"></i> ${c}</span></div>`;
         });
@@ -740,24 +751,51 @@
     function atualizarListaHistorico() {
         const container = document.getElementById('lista-historico');
         container.innerHTML = "";
+        if (historicoLista.length === 0) {
+            container.innerHTML = `<div class="list-item"><span style="color: #64748b;">Nenhum orçamento gerado ainda.</span></div>`;
+            return;
+        }
         historicoLista.forEach(h => {
-            container.innerHTML += `<div class="list-item"><div><strong>${h.nome}</strong><br><small style="color: #64748b;">${h.modeloLente} + ${h.tratamento}</small></div><span style="color: #059669; font-weight: bold;">R$ ${h.totalGeral.toFixed(2)}</span></div>`;
+            container.innerHTML += `
+                <div class="list-item">
+                    <div>
+                        <strong>${h.nome}</strong> <small style="color:#94a3b8;">(${h.data || 'Hoje'})</small><br>
+                        <small style="color: #64748b;">${h.modeloLente} + ${h.tratamento}</small>
+                    </div>
+                    <span style="color: #059669; font-weight: bold;">R$ ${h.totalGeral.toFixed(2).replace('.', ',')}</span>
+                </div>`;
         });
+    }
+
+    function limparClientes() {
+        if(confirm("Deseja apagar a lista de clientes?")) {
+            clientesLista = [];
+            localStorage.removeItem('mg_clientes');
+            atualizarListaClientes();
+        }
+    }
+
+    function limparHistorico() {
+        if(confirm("Deseja apagar todo o histórico de orçamentos?")) {
+            historicoLista = [];
+            localStorage.removeItem('mg_historico');
+            atualizarListaHistorico();
+        }
     }
 
     function enviarWhatsApp() {
         const o = window.orcamentoAtual;
         let txtDesconto = o.porcentagemDesconto > 0 ? `\n🏷️ *Desconto Promocional:* ${o.porcentagemDesconto}% OFF` : "";
         
-        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n✨ *Tratamento:* ${o.tratamento}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})${txtDesconto}\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2)}*\n\nAgradecemos a preferência!`;
+        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n✨ *Tratamento:* ${o.tratamento}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})${txtDesconto}\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2).replace('.', ',')}*\n\nAgradecemos a preferência!`;
         const url = `https://api.whatsapp.com/send?phone=${o.tel}&text=` + encodeURIComponent(texto);
         window.open(url, '_blank');
     }
 
-    // --- FUNÇÕES DA GERÊNCIA (ADM) ---
+    // --- PAINEL ADM ---
     function autenticarGerente() {
         const senha = document.getElementById('senha_adm').value;
-        if (senha === "1234") { // Senha Padrão Gerente
+        if (senha === "1234") {
             document.getElementById('login-adm').style.display = "none";
             document.getElementById('painel-precos-adm').style.display = "block";
             montarTabelaAdmin();
@@ -797,37 +835,30 @@
     }
 
     function salvarTabelaPrecos() {
-        // Salvar Preço da Armação
         const novaArmacao = parseFloat(document.getElementById('adm_preco_armacao').value);
         if(!isNaN(novaArmacao)) {
             valorArmacaoPadrao = novaArmacao;
             localStorage.setItem('mg_preco_armacao', novaArmacao);
         }
 
-        // Salvar Preço das Lentes
         tabelaPrecos.forEach((item, index) => {
             const valInput = parseFloat(document.getElementById(`preco_lente_adm_${index}`).value);
-            if (!isNaN(valInput)) {
-                item.preco = valInput;
-            }
+            if (!isNaN(valInput)) item.preco = valInput;
         });
 
-        // Salvar Preço dos Tratamentos
         tabelaTratamentos.forEach((item, index) => {
             const valInput = parseFloat(document.getElementById(`preco_trat_adm_${index}`).value);
-            if (!isNaN(valInput)) {
-                item.preco = valInput;
-            }
+            if (!isNaN(valInput)) item.preco = valInput;
         });
 
         localStorage.setItem('mg_tabela_precos', JSON.stringify(tabelaPrecos));
         localStorage.setItem('mg_tabela_tratamentos', JSON.stringify(tabelaTratamentos));
         renderizarSelects();
-        alert("Configurações, preços e armação salvos com sucesso!");
+        alert("Configurações salvas com sucesso!");
     }
 
-    // Inicialização ao carregar a página
-    carregarPrecos();
+    // Iniciar app
+    carregarDadosSalvos();
 </script>
 
 </body>
