@@ -425,14 +425,24 @@
                     </div>
                 </div>
 
+                <!-- SELEÇÃO DE LENTES E TRATAMENTOS -->
                 <div class="card">
-                    <div class="card-header"><span><i class="fa-solid fa-tag"></i> SELEÇÃO DE PRODUTOS</span></div>
+                    <div class="card-header"><span><i class="fa-solid fa-tag"></i> SELEÇÃO DE LENTE E TRATAMENTOS</span></div>
+                    
                     <div class="form-group">
-                        <label>Modelo da Lente</label>
+                        <label>Tipo de Lente</label>
                         <select id="tipo_lente" class="form-control">
                             <!-- Opções carregadas dinamicamente via JS -->
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Tratamento Adicional</label>
+                        <select id="tipo_tratamento" class="form-control">
+                            <!-- Opções carregadas dinamicamente via JS -->
+                        </select>
+                    </div>
+
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Valor da Armação (R$)</label>
                         <input type="number" id="valor_armacao" class="form-control" value="150.00">
@@ -464,6 +474,7 @@
                 <div class="card"><div class="card-header"><span>Visão Simples</span></div><p style="font-size: 13px; color: #64748b;">Lentes para correção de longe ou perto isoladamente.</p></div>
                 <div class="card"><div class="card-header"><span>Multifocais</span></div><p style="font-size: 13px; color: #64748b;">Lentes progressivas para enxergar longe, meia distância e perto sem linha visível.</p></div>
                 <div class="card"><div class="card-header"><span>Bifocais</span></div><p style="font-size: 13px; color: #64748b;">Lentes tradicionais com campo delimitado para longe e perto.</p></div>
+                <div class="card"><div class="card-header"><span>Alto Índice (1.67 / 1.74)</span></div><p style="font-size: 13px; color: #64748b;">Lentes ultrafinas recomendadas para graus elevados.</p></div>
             </div>
 
             <!-- 5. ABA GERÊNCIA (SÓ O GERENTE/ADM TEM ACESSO) -->
@@ -475,7 +486,7 @@
                     <div class="card-header"><span><i class="fa-solid fa-lock"></i> ÁREA RESTRITA</span></div>
                     <div class="form-group">
                         <label>Digite a Senha do Gerente</label>
-                        <input type="password" id="senha_adm" class="form-control" placeholder="Senha padrão: 2929">
+                        <input type="password" id="senha_adm" class="form-control" placeholder="Senha padrão: 1234">
                     </div>
                     <button class="btn-primary" onclick="autenticarGerente()">ACESSAR PAINEL</button>
                 </div>
@@ -486,16 +497,30 @@
                         <span><i class="fa-solid fa-pen-to-square"></i> EDITAR TABELA DE PREÇOS FIXOS</span>
                         <button onclick="sairGerencia()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 600;">Sair</button>
                     </div>
-                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Altere os preços das lentes abaixo. Os vendedores só verão os nomes das lentes no menu.</p>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Altere os preços das lentes e tratamentos abaixo. Os vendedores não verão os valores no menu.</p>
                     
+                    <h4 style="font-size: 14px; margin-top: 10px; color: #0f172a;">Lentes Base:</h4>
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>Lente</th>
-                                <th>Preço (R$)</th>
+                                <th>Preço Base (R$)</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-precos-body">
+                            <!-- Gerado via JavaScript -->
+                        </tbody>
+                    </table>
+
+                    <h4 style="font-size: 14px; margin-top: 25px; color: #0f172a;">Adicionais de Tratamentos:</h4>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Tratamento</th>
+                                <th>Valor Adicional (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-tratamentos-body">
                             <!-- Gerado via JavaScript -->
                         </tbody>
                     </table>
@@ -514,6 +539,7 @@
         <div class="result-card">
             <div id="res_cliente" style="font-weight: 700; font-size: 16px; color: #0f172a; margin-bottom: 12px;">Cliente: -</div>
             <div class="detail-row"><span>Modelo da Lente:</span><span id="res_modelo" style="font-weight: 600; text-align: right;">-</span></div>
+            <div class="detail-row"><span>Tratamento:</span><span id="res_tratamento" style="font-weight: 600; text-align: right;">-</span></div>
             <div class="detail-row"><span>Adição:</span><span id="res_adicao" style="font-weight: 600;">-</span></div>
             <div class="detail-row"><span>Medidas OD (DP/CO):</span><span id="res_medidas_od" style="font-weight: 600;">-</span></div>
             <div class="detail-row"><span>Medidas OE (DP/CO):</span><span id="res_medidas_oe" style="font-weight: 600;">-</span></div>
@@ -536,37 +562,53 @@
 <script>
     // Tabela padrão de preços das lentes
     let tabelaPrecosPadrao = [
-        { id: "vs_1", categoria: "Visão Simples (VS)", nome: "VS Incolor 1.49", preco: 120.00 },
-        { id: "vs_2", categoria: "Visão Simples (VS)", nome: "VS Antirreflexo 1.56", preco: 180.00 },
-        { id: "vs_3", categoria: "Visão Simples (VS)", nome: "VS Fotossensível 1.56", preco: 250.00 },
-        { id: "vs_4", categoria: "Visão Simples (VS)", nome: "VS Policarbonato 1.59", preco: 300.00 },
-        { id: "multi_1", categoria: "Lentes Multifocais", nome: "Multifocal Digital FreeForm Incolor", preco: 450.00 },
-        { id: "multi_2", categoria: "Lentes Multifocais", nome: "Multifocal Digital Antirreflexo", preco: 550.00 },
-        { id: "multi_3", categoria: "Lentes Multifocais", nome: "Multifocal Fotossensível (Transitions)", preco: 750.00 },
-        { id: "multi_4", categoria: "Lentes Multifocais", nome: "Multifocal Blue Cut (Antiluz Azul)", preco: 600.00 },
-        { id: "bi_1", categoria: "Lentes Bifocais", nome: "Bifocal Kripton Incolor", preco: 200.00 },
-        { id: "bi_2", categoria: "Lentes Bifocais", nome: "Bifocal Flat Top Antirreflexo", preco: 280.00 }
+        { id: "vs_1", categoria: "Visão Simples", nome: "Visão Simples CR-39 / Incolor 1.49", preco: 120.00 },
+        { id: "vs_2", categoria: "Visão Simples", nome: "Visão Simples Policarbonato 1.59", preco: 220.00 },
+        { id: "multi_1", categoria: "Multifocais", nome: "Multifocal Convencional", preco: 350.00 },
+        { id: "multi_2", categoria: "Multifocais", nome: "Multifocal Digital FreeForm", preco: 500.00 },
+        { id: "bi_1", categoria: "Bifocais", nome: "Bifocal Kripton", preco: 180.00 },
+        { id: "bi_2", categoria: "Bifocais", nome: "Bifocal Flat Top", preco: 230.00 },
+        { id: "ai_1", categoria: "Alto Índice (Ultrafinas)", nome: "Alto Índice 1.67", preco: 650.00 },
+        { id: "ai_2", categoria: "Alto Índice (Ultrafinas)", nome: "Alto Índice 1.74", preco: 980.00 }
+    ];
+
+    // Tabela padrão de tratamentos adicionais
+    let tratamentosPadrao = [
+        { id: "trat_0", nome: "Incolor / Sem Tratamento Adicional", preco: 0.00 },
+        { id: "trat_1", nome: "AR (Anti-Reflexo)", preco: 80.00 },
+        { id: "trat_2", nome: "Fotossensível (Transitions)", preco: 150.00 },
+        { id: "trat_3", nome: "Filtro de Luz Azul (Blue Cut)", preco: 100.00 },
+        { id: "trat_4", nome: "Fotossensível + Anti-Reflexo", preco: 200.00 }
     ];
 
     let clientesLista = [];
     let historicoLista = [];
     let tabelaPrecos = [];
+    let tabelaTratamentos = [];
 
     // Carregar Preços Fixos Salvos (ou padrão)
     function carregarPrecos() {
-        let salvos = localStorage.getItem('mg_tabela_precos');
-        if (salvos) {
-            tabelaPrecos = JSON.parse(salvos);
+        let salvosLentes = localStorage.getItem('mg_tabela_precos');
+        if (salvosLentes) {
+            tabelaPrecos = JSON.parse(salvosLentes);
         } else {
             tabelaPrecos = JSON.parse(JSON.stringify(tabelaPrecosPadrao));
         }
-        renderizarSelectLentes();
+
+        let salvosTrat = localStorage.getItem('mg_tabela_tratamentos');
+        if (salvosTrat) {
+            tabelaTratamentos = JSON.parse(salvosTrat);
+        } else {
+            tabelaTratamentos = JSON.parse(JSON.stringify(tratamentosPadrao));
+        }
+
+        renderizarSelects();
     }
 
-    // Renderizar select sem exibir os valores para os vendedores
-    function renderizarSelectLentes() {
-        const select = document.getElementById('tipo_lente');
-        select.innerHTML = "";
+    // Renderizar selects sem exibir os valores para os vendedores
+    function renderizarSelects() {
+        const selectLente = document.getElementById('tipo_lente');
+        selectLente.innerHTML = "";
 
         let categorias = [...new Set(tabelaPrecos.map(item => item.categoria))];
 
@@ -576,10 +618,19 @@
             tabelaPrecos.filter(i => i.categoria === cat).forEach(lente => {
                 let option = document.createElement('option');
                 option.value = lente.id;
-                option.textContent = lente.nome; // SEM PREÇO NO NOME
+                option.textContent = lente.nome;
                 optgroup.appendChild(option);
             });
-            select.appendChild(optgroup);
+            selectLente.appendChild(optgroup);
+        });
+
+        const selectTratamento = document.getElementById('tipo_tratamento');
+        selectTratamento.innerHTML = "";
+        tabelaTratamentos.forEach(t => {
+            let option = document.createElement('option');
+            option.value = t.id;
+            option.textContent = t.nome;
+            selectTratamento.appendChild(option);
         });
     }
 
@@ -596,6 +647,9 @@
     function calcularOrcamento() {
         const idLente = document.getElementById('tipo_lente').value;
         const lenteObj = tabelaPrecos.find(l => l.id === idLente);
+
+        const idTratamento = document.getElementById('tipo_tratamento').value;
+        const tratamentoObj = tabelaTratamentos.find(t => t.id === idTratamento);
         
         const nome = document.getElementById('cliente_nome').value || "Cliente Balcão";
         const tel = document.getElementById('cliente_tel').value || "";
@@ -607,25 +661,27 @@
         const oeCo = document.getElementById('oe_co').value || "-";
 
         const valorLente = lenteObj ? parseFloat(lenteObj.preco) : 0;
+        const valorTratamento = tratamentoObj ? parseFloat(tratamentoObj.preco) : 0;
         const valorArmacao = parseFloat(document.getElementById('valor_armacao').value) || 0;
 
-        const totalGeral = valorLente + valorArmacao;
+        const totalGeral = valorLente + valorTratamento + valorArmacao;
 
         if(nome && !clientesLista.includes(nome)) {
             clientesLista.push(nome);
             atualizarListaClientes();
         }
-        historicoLista.unshift({nome, totalGeral, modeloLente: lenteObj.nome});
+        historicoLista.unshift({nome, totalGeral, modeloLente: lenteObj.nome, tratamento: tratamentoObj.nome});
         atualizarListaHistorico();
 
         document.getElementById('res_cliente').innerText = "Cliente: " + nome;
         document.getElementById('res_modelo').innerText = lenteObj.nome;
+        document.getElementById('res_tratamento').innerText = tratamentoObj.nome;
         document.getElementById('res_adicao').innerText = adicao;
         document.getElementById('res_medidas_od').innerText = `DP: ${odDp} | CO: ${odCo}`;
         document.getElementById('res_medidas_oe').innerText = `DP: ${oeDp} | CO: ${oeCo}`;
         document.getElementById('res_total').innerText = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
 
-        window.orcamentoAtual = { nome, totalGeral, modeloLente: lenteObj.nome, tel, adicao, odDp, odCo, oeDp, oeCo };
+        window.orcamentoAtual = { nome, totalGeral, modeloLente: lenteObj.nome, tratamento: tratamentoObj.nome, tel, adicao, odDp, odCo, oeDp, oeCo };
         document.getElementById('result-screen').style.display = 'block';
     }
 
@@ -645,13 +701,13 @@
         const container = document.getElementById('lista-historico');
         container.innerHTML = "";
         historicoLista.forEach(h => {
-            container.innerHTML += `<div class="list-item"><div><strong>${h.nome}</strong><br><small style="color: #64748b;">${h.modeloLente}</small></div><span style="color: #059669; font-weight: bold;">R$ ${h.totalGeral.toFixed(2)}</span></div>`;
+            container.innerHTML += `<div class="list-item"><div><strong>${h.nome}</strong><br><small style="color: #64748b;">${h.modeloLente} + ${h.tratamento}</small></div><span style="color: #059669; font-weight: bold;">R$ ${h.totalGeral.toFixed(2)}</span></div>`;
         });
     }
 
     function enviarWhatsApp() {
         const o = window.orcamentoAtual;
-        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2)}*\n\nAgradecemos a preferência!`;
+        const texto = `Olá *${o.nome}*! Segue o orçamento dos seus óculos nas *Óticas M&G*:\n\n👓 *Lente:* ${o.modeloLente}\n✨ *Tratamento:* ${o.tratamento}\n➕ *Adição:* ${o.adicao}\n📐 *Medidas:* OD (DP: ${o.odDp} / CO: ${o.odCo}) | OE (DP: ${o.oeDp} / CO: ${o.oeCo})\n\n💰 *Valor Total do Pacote:* *R$ ${o.totalGeral.toFixed(2)}*\n\nAgradecemos a preferência!`;
         const url = `https://api.whatsapp.com/send?phone=${o.tel}&text=` + encodeURIComponent(texto);
         window.open(url, '_blank');
     }
@@ -675,13 +731,24 @@
     }
 
     function montarTabelaAdmin() {
-        const tbody = document.getElementById('tabela-precos-body');
-        tbody.innerHTML = "";
+        const tbodyLentes = document.getElementById('tabela-precos-body');
+        tbodyLentes.innerHTML = "";
         tabelaPrecos.forEach((item, index) => {
-            tbody.innerHTML += `
+            tbodyLentes.innerHTML += `
                 <tr>
                     <td>${item.nome}</td>
-                    <td><input type="number" step="0.01" id="preco_adm_${index}" value="${item.preco.toFixed(2)}"></td>
+                    <td><input type="number" step="0.01" id="preco_lente_adm_${index}" value="${item.preco.toFixed(2)}"></td>
+                </tr>
+            `;
+        });
+
+        const tbodyTrat = document.getElementById('tabela-tratamentos-body');
+        tbodyTrat.innerHTML = "";
+        tabelaTratamentos.forEach((item, index) => {
+            tbodyTrat.innerHTML += `
+                <tr>
+                    <td>${item.nome}</td>
+                    <td><input type="number" step="0.01" id="preco_trat_adm_${index}" value="${item.preco.toFixed(2)}"></td>
                 </tr>
             `;
         });
@@ -689,14 +756,23 @@
 
     function salvarTabelaPrecos() {
         tabelaPrecos.forEach((item, index) => {
-            const valInput = parseFloat(document.getElementById(`preco_adm_${index}`).value);
+            const valInput = parseFloat(document.getElementById(`preco_lente_adm_${index}`).value);
             if (!isNaN(valInput)) {
                 item.preco = valInput;
             }
         });
+
+        tabelaTratamentos.forEach((item, index) => {
+            const valInput = parseFloat(document.getElementById(`preco_trat_adm_${index}`).value);
+            if (!isNaN(valInput)) {
+                item.preco = valInput;
+            }
+        });
+
         localStorage.setItem('mg_tabela_precos', JSON.stringify(tabelaPrecos));
-        renderizarSelectLentes();
-        alert("Preços alterados e salvos com sucesso!");
+        localStorage.setItem('mg_tabela_tratamentos', JSON.stringify(tabelaTratamentos));
+        renderizarSelects();
+        alert("Tabela de preços e tratamentos atualizada com sucesso!");
     }
 
     // Inicialização ao carregar a página
