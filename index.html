@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Óticas M&G - Sistema de Orçamento</title>
     
-    <!-- Configurações para abrir como Web App de verdade -->
+    <!-- Configurações para Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Óticas M&G">
@@ -13,6 +13,10 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Biblioteca Tesseract.js para Leitura de OCR/Câmera -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -41,9 +45,7 @@
         }
 
         @media (min-width: 768px) {
-            body {
-                padding: 20px;
-            }
+            body { padding: 20px; }
             .app-container {
                 max-width: 900px;
                 height: 880px;
@@ -63,34 +65,12 @@
             align-items: center;
             border-bottom: 1px solid #1e293b;
         }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo-icon {
-            font-size: 24px;
-            color: #fbbf24;
-        }
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: #fbbf24;
-        }
-        .logo-sub {
-            font-size: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #94a3b8;
-        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 24px; color: #fbbf24; }
+        .logo-text { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #fbbf24; }
+        .logo-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #94a3b8; }
         
-        .main-layout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
+        .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
 
         .sidebar-desktop {
             display: none;
@@ -120,18 +100,11 @@
             background-color: rgba(251, 191, 36, 0.05);
             border-right: 4px solid #fbbf24;
         }
-        .sidebar-btn i {
-            font-size: 16px;
-            width: 20px;
-        }
+        .sidebar-btn i { font-size: 16px; width: 20px; }
 
         @media (min-width: 768px) {
-            .sidebar-desktop {
-                display: flex;
-            }
-            .bottom-nav {
-                display: none !important;
-            }
+            .sidebar-desktop { display: flex; }
+            .bottom-nav { display: none !important; }
         }
 
         .content-area {
@@ -142,27 +115,13 @@
             padding-bottom: 90px;
         }
         @media (min-width: 768px) {
-            .content-area {
-                padding: 30px;
-                padding-bottom: 30px;
-            }
+            .content-area { padding: 30px; padding-bottom: 30px; }
         }
 
-        .view-content {
-            display: none;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        .view-content.active {
-            display: block;
-        }
+        .view-content { display: none; max-width: 700px; margin: 0 auto; }
+        .view-content.active { display: block; }
 
-        h2.section-title {
-            font-size: 22px;
-            color: #0f172a;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
+        h2.section-title { font-size: 22px; color: #0f172a; margin-bottom: 20px; font-weight: 700; }
 
         .card {
             background: white;
@@ -181,9 +140,7 @@
             font-weight: 600;
             color: #d97706;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
         .form-group label {
             display: block;
             font-size: 11px;
@@ -203,26 +160,11 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        .form-control:focus {
-            border-color: #d97706;
-            background-color: white;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-        @media (min-width: 600px) {
-            .grid-2 {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        .eye-box {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
+        .form-control:focus { border-color: #d97706; background-color: white; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 600px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+        
+        .eye-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; }
         .eye-title {
             font-size: 12px;
             font-weight: 700;
@@ -232,6 +174,7 @@
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 6px;
         }
+
         .btn-primary {
             width: 100%;
             background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -246,27 +189,34 @@
             transition: opacity 0.2s;
             margin-top: 10px;
         }
-        .btn-primary:active {
-            opacity: 0.9;
+        .btn-primary:active { opacity: 0.9; }
+
+        .btn-camera {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
         }
+        .btn-camera:hover { background: #0369a1; }
 
         #result-screen {
             display: none;
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: #f8fafc;
             z-index: 100;
             padding: 20px;
             overflow-y: auto;
         }
-        @media(min-width: 768px) {
-            #result-screen {
-                padding: 40px;
-            }
-        }
+        @media(min-width: 768px) { #result-screen { padding: 40px; } }
         .result-card {
             background: white;
             border-radius: 16px;
@@ -275,47 +225,14 @@
             max-width: 600px;
             margin: 15px auto 0 auto;
         }
-        .price-tag {
-            font-size: 32px;
-            font-weight: 800;
-            color: #059669;
-            text-align: center;
-            margin: 15px 0 20px 0;
-        }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
-        }
-        .back-btn {
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        .list-item {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .price-tag { font-size: 32px; font-weight: 800; color: #059669; text-align: center; margin: 15px 0 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .back-btn { background: #334155; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 15px; }
+        .list-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
 
         .bottom-nav {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
+            bottom: 0; left: 0; width: 100%;
             background-color: #0f172a;
             display: flex;
             justify-content: space-around;
@@ -324,45 +241,50 @@
             z-index: 50;
         }
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 10px;
-            gap: 4px;
-            cursor: pointer;
-            background: none;
-            border: none;
+            display: flex; flex-direction: column; align-items: center;
+            color: #64748b; text-decoration: none; font-size: 10px; gap: 4px;
+            cursor: pointer; background: none; border: none;
         }
-        .nav-item.active {
-            color: #fbbf24;
-        }
-        .nav-item i {
-            font-size: 18px;
-        }
+        .nav-item.active { color: #fbbf24; }
+        .nav-item i { font-size: 18px; }
 
-        /* Estilos do Painel ADM */
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .admin-table th, .admin-table td { padding: 8px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+        .admin-table input { width: 110px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+        /* Modal Carregando Leitura */
+        #loading-camera {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 200;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
         }
-        .admin-table th, .admin-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 13px;
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            border-left-color: #fbbf24;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
         }
-        .admin-table input {
-            width: 110px;
-            padding: 6px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+<!-- Status de Leitura de Foto -->
+<div id="loading-camera">
+    <div class="spinner"></div>
+    <h3 style="font-size: 18px; margin-bottom: 8px;">Lendo Receita Médica...</h3>
+    <p style="font-size: 13px; color: #94a3b8;">Aguarde alguns segundos enquanto identificamos os dados.</p>
+</div>
 
 <div class="app-container">
     <div class="header">
@@ -405,9 +327,17 @@
                     </div>
                 </div>
 
-                <!-- DADOS DE RECEITA E DNP/CO -->
+                <!-- RECEITA / CÂMERA -->
                 <div class="card">
-                    <div class="card-header"><span><i class="fa-solid fa-eye"></i> RECEITA / MEDIDAS (DP e CO)</span></div>
+                    <div class="card-header">
+                        <span><i class="fa-solid fa-eye"></i> RECEITA / MEDIDAS (DP e CO)</span>
+                        <!-- Botão Câmera / Leitor -->
+                        <button class="btn-camera" onclick="document.getElementById('input_camera').click()">
+                            <i class="fa-solid fa-camera"></i> Escanear Receita
+                        </button>
+                        <input type="file" id="input_camera" accept="image/*" capture="environment" style="display:none;" onchange="escanearFotoReceita(event)">
+                    </div>
+
                     <div class="grid-2">
                         <div class="eye-box">
                             <div class="eye-title">Olho Direito (OD)</div>
@@ -600,7 +530,6 @@
     let tabelaTratamentos = [];
 
     function carregarDadosSalvos() {
-        // Carregar Preços
         let salvosLentes = localStorage.getItem('mg_tabela_precos');
         tabelaPrecos = salvosLentes ? JSON.parse(salvosLentes) : JSON.parse(JSON.stringify(tabelaPrecosPadrao));
 
@@ -611,7 +540,6 @@
         if (salvoArmacao) valorArmacaoPadrao = parseFloat(salvoArmacao);
         document.getElementById('adm_preco_armacao').value = valorArmacaoPadrao.toFixed(2);
 
-        // Carregar Clientes e Histórico do LocalStorage
         let clientesSalvos = localStorage.getItem('mg_clientes');
         if(clientesSalvos) clientesLista = JSON.parse(clientesSalvos);
 
@@ -660,6 +588,50 @@
         if (elementoBtn) elementoBtn.classList.add('active');
     }
 
+    // --- FUNÇÃO DE LEITURA DA FOTO/CÂMERA ---
+    async function escanearFotoReceita(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const modal = document.getElementById('loading-camera');
+        modal.style.display = 'flex';
+
+        try {
+            const worker = await Tesseract.createWorker('por');
+            const ret = await worker.recognize(file);
+            const texto = ret.data.text;
+            await worker.terminate();
+
+            processarTextoReceita(texto);
+            alert("Receita lida com sucesso! Confira os dados nos campos.");
+        } catch (err) {
+            console.error(err);
+            alert("Não foi possível ler a receita automaticamente. Tente tirar uma foto mais nítida ou preencha manualmente.");
+        } finally {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Processa os números encontrados pelo leitor
+    function processarTextoReceita(texto) {
+        // Busca adições (ex: +2.00 ou ADD 2.00)
+        const matchAdicao = texto.match(/(?:\+|ADD|ADIÇÃO)\s*([0-3]\.[0-9]{2})/i);
+        if (matchAdicao && matchAdicao[1]) {
+            document.getElementById('adicao').value = "+" + matchAdicao[1];
+        }
+
+        // Busca valores de DP (ex: DP 31 ou DNP 32)
+        const matchesDp = texto.match(/(?:DP|DNP)\s*:?\s*([2-3][0-9])/gi);
+        if (matchesDp && matchesDp.length >= 1) {
+            const num1 = matchesDp[0].replace(/[^0-9]/g, '');
+            if(num1) document.getElementById('od_dp').value = num1;
+            if(matchesDp[1]) {
+                const num2 = matchesDp[1].replace(/[^0-9]/g, '');
+                if(num2) document.getElementById('oe_dp').value = num2;
+            }
+        }
+    }
+
     function calcularOrcamento() {
         const idLente = document.getElementById('tipo_lente').value;
         const lenteObj = tabelaPrecos.find(l => l.id === idLente);
@@ -688,14 +660,12 @@
         const valorDesconto = (subtotal * porcentagemDesconto) / 100;
         const totalGeral = subtotal - valorDesconto;
 
-        // Adiciona cliente se não existir
         if (!clientesLista.includes(nome)) {
             clientesLista.push(nome);
             localStorage.setItem('mg_clientes', JSON.stringify(clientesLista));
             atualizarListaClientes();
         }
 
-        // Registra histórico com data/hora
         const dataHoje = new Date().toLocaleDateString('pt-BR');
         historicoLista.unshift({
             nome, 
@@ -707,7 +677,6 @@
         localStorage.setItem('mg_historico', JSON.stringify(historicoLista));
         atualizarListaHistorico();
 
-        // Preenche dados da tela de resultado
         document.getElementById('res_cliente').innerText = "Cliente: " + nome;
         document.getElementById('res_modelo').innerText = lenteObj.nome;
         document.getElementById('res_tratamento').innerText = tratamentoObj.nome;
@@ -857,7 +826,6 @@
         alert("Configurações salvas com sucesso!");
     }
 
-    // Iniciar app
     carregarDadosSalvos();
 </script>
 
